@@ -11,6 +11,8 @@ import aiohttp
 import time
 import math
 import praw
+from mcstatus import MinecraftServer
+import socket
 
 PREFIX = (';')
 bot = commands.Bot(command_prefix=PREFIX, description='no')
@@ -49,6 +51,7 @@ async def help(ctx):
     em.add_field(name='Website', value='[https://xeam.nl/](https://xeam.nl/)', inline=False)
     em.add_field(name='Minecraft Server IP', value='xeam.nl', inline=False)
     em.add_field(name='Support', value='[Ban appeal](https://xeam.nl/unban), [Support ticket](https://xeam.nl/help)', inline=False)
+    em.add_field(name='Commands', value='```\nserver - show info about the server\nuser - show info about a specific user\nstatus - check the minecraft server status\n```')
     em.set_footer(text='Made my Jake.#8428 - https://jakesystems.us')
     await ctx.send(embed=em)
     
@@ -98,4 +101,21 @@ async def user(ctx, member:discord.Member = None):
     whoisb.add_field(name='Top role', value=member.top_role.mention)
     await ctx.send(embed=whoisb)
     
+@bot.command()
+async def status(ctx):
+    async with ctx.typing():
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('xeam.nl', 25565))
+        if result == 0:
+            server = MinecraftServer.lookup('xeam.nl')
+            status = server.status()
+            em = discord.Embed(title='Xeam minecraft server status', color=discord.Color.red(), inline=False)
+            em.add_field(name='Server status', value='Server is online :green_circle:')
+            em.add_field(name='Player count', value='{0} players online'.format(status.players.online), inline=False)
+            await ctx.send(embed=em)
+        else:
+            em = discord.Embed(title='Xeam minecraft server status', color=discord.Color.red())
+            em.add_field(name='Server status', value='Server is offline :red_circle:')
+            await ctx.send(embed=em)  
+
 bot.run('TOKEN HERE')
