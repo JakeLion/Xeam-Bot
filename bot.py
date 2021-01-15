@@ -90,4 +90,4 @@ async def user(ctx, member:discord.Member = None):
     whoisb.add_field(name='Top role', value=member.top_role.mention)
     await ctx.send(embed=whoisb)
     
-bot.run('Nzk3OTQ4Nzg3ODEzMjUzMTYz.X_t5uA.VjzMmE3YE_pu2WRElIotsU30vTY')
+bot.run('TOKEN HERE')
