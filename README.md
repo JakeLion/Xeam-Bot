@@ -14,6 +14,26 @@ A: It may take anywhere from 1 hour to 1 week for somone to get back to you on a
 Q: What else should I know before contributing?  
 A: The bot is developed using python 3.7.3, aswell as the discord.py wrapper, please ensure all contributions conform with these specifications before contributing. We will not accept contributions using other coding languages or other discord API libraries, wrappers, etc.  
 
+### Other notes about contribution
+we use `bot` instead of `client`, for example:
+
+```py
+@bot.command()
+async def example(ctx):
+  bot.get_channel(ID)
+  await bot.send('value')
+```
+instead of:
+
+```py
+@client.command()
+async def example(ctx):
+  client.get_channel(ID)
+  await client.send('value')
+```
+please ensure all of your contributions use the `bot` variable name instead of `client`, we will not accept any contributions that use `client`
+
+
 ## Credits
 These are people who have contributed to the bot or aided in its development
 
