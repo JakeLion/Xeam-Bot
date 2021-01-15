@@ -34,6 +34,14 @@ async def on_message(message):
         await message.delete()
         em = discord.Embed(title='Invite removed', description='Your invite was removed, self promotion is currently not allowed here.', color=discord.Color.red())
         await message.channel.send(embed=em)
+        
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.CommandNotFound):
+        em = discord.Embed(title='Error: CommandNotFound', color=discord.Color.red())
+        await ctx.send(embed=em)
+    else:
+        raise error
     
 @bot.command()
 async def help(ctx):
