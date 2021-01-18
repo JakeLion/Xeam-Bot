@@ -117,5 +117,21 @@ async def status(ctx):
             em = discord.Embed(title='Xeam minecraft server status', color=discord.Color.red())
             em.add_field(name='Server status', value='Server is offline :red_circle:')
             await ctx.send(embed=em)  
+            
+            
+@bot.group()
+async def verify(ctx):
+    member = ctx.author
+    role = ctx.guild.get_role(ID_HERE)
+    await ctx.author.add_roles(role)
+    await ctx.message.delete()
+    em = discord.Embed(title='Verification Complete!', description=f'Hello {member.name}! We have confirmed that you are not a raid bot, enjoy the community!', color=discord.Color.red())
+    await member.send(embed=em)
+    
+@bot.command()
+async def setup(ctx):
+    em = discord.Embed(title='Verify Here', description='All users are required to verify after reading the rules, please type `;verify` after you have read the rules. Please ensure your DMs are open to this server and this bot in order to verify', color=discord.Color.red())
+    await ctx.send(embed=em)
 
+    
 bot.run('TOKEN HERE')
