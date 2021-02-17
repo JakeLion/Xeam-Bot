@@ -40,7 +40,7 @@ async def on_message(message):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, discord.ext.commands.CommandNotFound):
-        em = discord.Embed(title='Error: CommandNotFound', color=discord.Color.red())
+        em = discord.Embed(title='Error: Command Not Found', description='The command you executed likely doesnt exist. You may have made a spelling error aswell, if the issue persists, contact bot staff.', color=discord.Color.red())
         await ctx.send(embed=em)
     else:
         raise error
@@ -51,7 +51,7 @@ async def help(ctx):
     em.add_field(name='Website', value='[https://xeam.nl/](https://xeam.nl/)', inline=False)
     em.add_field(name='Minecraft Server IP', value='xeam.nl', inline=False)
     em.add_field(name='Support', value='[Ban appeal](https://xeam.nl/unban), [Support ticket](https://xeam.nl/help)', inline=False)
-    em.add_field(name='Commands', value='```\nserver - show info about the server\nuser - show info about a specific user\nstatus - check the minecraft server status\n```')
+    em.add_field(name='Commands', value='```\nserver - show info about the server\nticket - create a ticket within the discord server\nuser - show info about a specific user\nstatus - check the minecraft server status\n```')
     em.set_footer(text='Made my Jake.#8428 - https://jakesystems.us')
     await ctx.send(embed=em)
     
@@ -101,7 +101,9 @@ async def user(ctx, member:discord.Member = None):
     whoisb.add_field(name='Top role', value=member.top_role.mention)
     await ctx.send(embed=whoisb)
     
-@bot.command()
+
+#WATCHOUT this stat command is kinda bad, it works except for the server.query(), also it throws an ssl error whenever its executed but this doesnt cause stability issues or issues with the output so I dont really care to fix it.
+@bot.command(aliases=['stat'])
 async def status(ctx):
     async with ctx.typing():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -109,29 +111,72 @@ async def status(ctx):
         if result == 0:
             server = MinecraftServer.lookup('xeam.nl')
             status = server.status()
+            #query = server.query() -- this code is currently disabled as the Xeam minecraft server has protection that causes this code to timeout
             em = discord.Embed(title='Xeam minecraft server status', color=discord.Color.red(), inline=False)
             em.add_field(name='Server status', value='Server is online :green_circle:')
             em.add_field(name='Player count', value='{0} players online'.format(status.players.online), inline=False)
+            #em.add_field(name='Players Online', value="{0}".format(", ".join(query.players.names)), inline=False) -- goto line 112
             await ctx.send(embed=em)
         else:
             em = discord.Embed(title='Xeam minecraft server status', color=discord.Color.red())
             em.add_field(name='Server status', value='Server is offline :red_circle:')
-            await ctx.send(embed=em)  
-            
-            
+            await ctx.send(embed=em)
+          
+          
 @bot.group()
 async def verify(ctx):
     member = ctx.author
-    role = ctx.guild.get_role(ID_HERE)
+    role = ctx.guild.get_role(800171403214979102)
     await ctx.author.add_roles(role)
     await ctx.message.delete()
     em = discord.Embed(title='Verification Complete!', description=f'Hello {member.name}! We have confirmed that you are not a raid bot, enjoy the community!', color=discord.Color.red())
     await member.send(embed=em)
+    print(f'{member} was verified')
     
 @bot.command()
 async def setup(ctx):
     em = discord.Embed(title='Verify Here', description='All users are required to verify after reading the rules, please type `;verify` after you have read the rules. Please ensure your DMs are open to this server and this bot in order to verify', color=discord.Color.red())
     await ctx.send(embed=em)
+    
+@bot.command()
+@commands.has_permissions(manage_messages = True)
+async def mute(ctx, member : discord.Member):
+    role = ctx.guild.get_role(801197013378138142)
+    await ctx.member.add_roles(role)
+    await ctx.send(f'{member} was muted')
+    
+@bot.command()
+async def ticket(ctx, *, issue=None):
+    member = ctx.author
+    guild = ctx.guild
+    overwrites = {
+        guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        guild.me: discord.PermissionOverwrite(read_messages=True),
+    }
+    
+    em = discord.Embed(title='New Ticket', description='Hello! Our staff will be with you shortly. While you wait, please describe your issue further.', color=discord.Color.red())
+    em.add_field(name='Issue', value=issue)
+    em.set_footer(text='A staff member can close this ticket with ;solve, ;close, or ;resolve')
+    
+    if issue == None:
+        em2 = discord.Embed(title='Ticket creation failed', description='I need a reason to create the ticket\nExample: `;ticket how to get roles`', color=discord.Color.red())
+        await ctx.send(embed=em2)
+        return False
+    else:
+        name = 'Ticket Support'
+        category = discord.utils.get(ctx.guild.categories, name=name)
+        channel = await guild.create_text_channel(f'{member.name}-ticket', overwrites=overwrites, category=category)
+        await channel.set_permissions(ctx.author, send_messages=True, read_messages=True, add_reactions=True, embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
+    
+        await channel.send(str(ctx.author.mention), embed=em)
+        await ctx.send('done')
+        print(f'{member} created a ticket about: {issue}')
+
+@bot.command(aliases=['close', 'resolve'])
+@commands.has_permissions(manage_channels = True)
+async def solve(ctx):
+    channel = ctx.message.channel
+    await channel.delete()
 
     
 bot.run('TOKEN HERE')
