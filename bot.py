@@ -33,9 +33,12 @@ async def on_message(message):
         return
     if message.author.bot: return
     if 'discord.gg' in message.content:
-        await message.delete()
-        em = discord.Embed(title='Invite removed', description='Your invite was removed, self promotion is currently not allowed here.', color=discord.Color.red())
-        await message.channel.send(embed=em)
+        if message.channel.id == 814973910088155203:
+            return
+        elif message.channel.id != 814973910088155203:
+            await message.delete()
+            em = discord.Embed(title='Invite verwijderd', description='Jou invite is verwijderd, zelf promotie is niet toegestaan in dit kanaal.', color=discord.Color.red())
+            await message.channel.send(embed=em)
         
 @bot.event
 async def on_command_error(ctx, error):
@@ -51,7 +54,7 @@ async def help(ctx):
     em.add_field(name='Website', value='[https://xeam.nl/](https://xeam.nl/)', inline=False)
     em.add_field(name='Minecraft Server IP', value='xeam.nl', inline=False)
     em.add_field(name='Support', value='[Ban appeal](https://xeam.nl/unban), [Support ticket](https://xeam.nl/help)', inline=False)
-    em.add_field(name='Commands', value='```\nserver - show info about the server\nticket - create a ticket within the discord server\nuser - show info about a specific user\nstatus - check the minecraft server status\n```')
+    em.add_field(name='Commands', value='```\nserver - show info about the server\nuser - show info about a specific user\nstatus - check the minecraft server status\n```')
     em.set_footer(text='Made my Jake.#8428 - https://jakesystems.us')
     await ctx.send(embed=em)
     
@@ -129,7 +132,7 @@ async def verify(ctx):
     role = ctx.guild.get_role(800171403214979102)
     await ctx.author.add_roles(role)
     await ctx.message.delete()
-    em = discord.Embed(title='Verification Complete!', description=f'Hello {member.name}! We have confirmed that you are not a raid bot, enjoy the community!', color=discord.Color.red())
+    em = discord.Embed(title='Verificatie compleet!', description=f'Welkom {member.name}! Bedankt dat je de Bot verificatie hebt voldaan, Xeam en al haar partners wensen jou veel plezier in onze gezellige community!', color=discord.Color.red())
     await member.send(embed=em)
     print(f'{member} was verified')
     
@@ -145,6 +148,8 @@ async def mute(ctx, member : discord.Member):
     await ctx.member.add_roles(role)
     await ctx.send(f'{member} was muted')
     
+
+"""
 @bot.command()
 async def ticket(ctx, *, issue=None):
     member = ctx.author
@@ -163,8 +168,7 @@ async def ticket(ctx, *, issue=None):
         await ctx.send(embed=em2)
         return False
     else:
-        name = 'Ticket Support'
-        category = discord.utils.get(ctx.guild.categories, name=name)
+        category = get(ctx.guild.category_channels, 'ticket-support')
         channel = await guild.create_text_channel(f'{member.name}-ticket', overwrites=overwrites, category=category)
         await channel.set_permissions(ctx.author, send_messages=True, read_messages=True, add_reactions=True, embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
     
@@ -177,6 +181,6 @@ async def ticket(ctx, *, issue=None):
 async def solve(ctx):
     channel = ctx.message.channel
     await channel.delete()
-
+"""
     
 bot.run('TOKEN HERE')
