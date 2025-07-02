@@ -1,3 +1,6 @@
+# Deprecated
+This project is no longer supported, use at your own risk
+
 # Personal Assitant
 Personal Assistant is the custom discord bot for the Xeam minecraft community! Personal Assitant is designed to provide specific services and functionality for the community and its members.
 
